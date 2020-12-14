@@ -7,13 +7,18 @@ using UnityEngine;
 
 public class TestEditior : EditorWindow
 {
-    [MenuItem("Managers/AudioManager")]
+    [MenuItem("Managers/AudioManagers")]
     static void CreateWindow()
     {
         //Rect rect = new Rect(100, 200, 300, 400);
         //TestEditior testEditor = EditorWindow.GetWindowWithRect(typeof(TestEditior), rect) as TestEditior;
         TestEditior testEditor = EditorWindow.GetWindow<TestEditior>("音效管理");
         testEditor.Show();
+    }
+
+    private void Awake()
+    {
+        LoadAudioList();
     }
 
     private string audioName;
@@ -36,7 +41,9 @@ public class TestEditior : EditorWindow
             GUILayout.Label(value);
             if (GUILayout.Button("删除"))
             {
-                audioDic.Remove(key); return;
+                audioDic.Remove(key);
+                SaveAudioList();
+                return;
             }
             GUILayout.EndHorizontal();
         }
@@ -60,17 +67,24 @@ public class TestEditior : EditorWindow
                 {
                     Debug.Log("音效已经存在" + audioName + ", 请修改");
                 }
-                else 
+                else
                 {
                     audioDic.Add(audioName, audioPath);
-                    SaveData();
+                    SaveAudioList();
                 }
             }
         }
-        
+
     }
 
-    private void SaveData()
+    private void OnInspectorUpdate()
+    {
+        LoadAudioList();
+    }
+
+
+    private string savePath = Application.dataPath + "\\Editor\\myTest\\audio.txt";
+    private void SaveAudioList()
     {
         StringBuilder str = new StringBuilder();
         foreach (string key in audioDic.Keys)
@@ -79,7 +93,20 @@ public class TestEditior : EditorWindow
             audioDic.TryGetValue(key, out value);
             str.Append(key + "," + value + "\n");
         }
-        string savePath = Application.dataPath + "\\Editor\\myTest\\audio.txt";
+
         File.WriteAllText(savePath, str.ToString());
+    }
+
+    private void LoadAudioList()
+    {
+        if (File.Exists(savePath) == false) return;
+        audioDic = new Dictionary<string, string>();
+        string[] lines = File.ReadAllLines(savePath);
+        foreach (string line in lines)
+        {
+            if (string.IsNullOrEmpty(line)) continue;
+            string[] keyvalue = line.Split(',');
+            audioDic.Add(keyvalue[0], keyvalue[1]);
+        }
     }
 }
