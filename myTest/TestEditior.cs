@@ -15,9 +15,10 @@ public class TestEditior : EditorWindow
         TestEditior testEditor = EditorWindow.GetWindow<TestEditior>("音效管理");
         testEditor.Show();
     }
-
+    private string savePath ;
     private void Awake()
     {
+        savePath = Application.dataPath + "\\Editor\\myTest\\audio.txt";
         LoadAudioList();
     }
 
@@ -83,7 +84,7 @@ public class TestEditior : EditorWindow
     }
 
 
-    private string savePath = Application.dataPath + "\\Editor\\myTest\\audio.txt";
+    
     private void SaveAudioList()
     {
         StringBuilder str = new StringBuilder();
@@ -99,8 +100,9 @@ public class TestEditior : EditorWindow
 
     private void LoadAudioList()
     {
-        if (File.Exists(savePath) == false) return;
         audioDic = new Dictionary<string, string>();
+        if (File.Exists(savePath) == false) return;
+       
         string[] lines = File.ReadAllLines(savePath);
         foreach (string line in lines)
         {
